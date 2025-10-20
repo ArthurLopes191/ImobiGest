@@ -10,7 +10,7 @@ export function middleware(request: NextRequest) {
 //   console.log('🔑 Token:', token ? 'EXISTE' : 'NÃO EXISTE');
 
   // Rotas que precisam de autenticação
-  const protectedRoutes = ['/dashboard', '/users', '/properties', '/reports'];
+  const protectedRoutes = ['/home', '/users', '/properties', '/reports'];
   
   // Rotas públicas (login, home)
   const publicRoutes = ['/', '/login'];
@@ -24,7 +24,7 @@ export function middleware(request: NextRequest) {
   // Se está autenticado e tentando acessar login, redireciona para dashboard
   if (token && publicRoutes.includes(pathname)) {
     console.log('✅ Redirecionando para dashboard - já autenticado');
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL('/home', request.url));
   }
 
   console.log('➡️ Permitindo acesso');
@@ -33,5 +33,5 @@ export function middleware(request: NextRequest) {
 
 // Expandir o matcher para todas as rotas que queremos proteger
 export const config = {
-  matcher: ['/', '/dashboard', '/users', '/properties', '/reports', '/login']
+  matcher: ['/', '/home', '/users', '/properties', '/reports', '/login']
 };

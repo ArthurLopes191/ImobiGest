@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
-import { authService } from '../../services/auth';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Schema de validação com Zod
 const loginSchema = z.object({
@@ -21,9 +21,9 @@ const loginSchema = z.object({
 });
 
 export default function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
   const router = useRouter();
+  const { login, state } = useAuth();
 
   const {
     register,
@@ -34,20 +34,13 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data) => {
-    setIsLoading(true);
     setLoginError('');
     
     try {
-      // Chama o serviço de auth (backend espera "senha", não "password")
-      await authService.login(data.email, data.password);
-      
-      // Redireciona para o dashboard após login bem-sucedido
-      router.push('/dashboard');
-      
+      await login(data.email, data.password);
+      router.push('/home');
     } catch (error) {
       setLoginError(error.message || 'Erro ao fazer login');
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -136,17 +129,17 @@ export default function LoginForm() {
 
           <button 
             type="submit"
-            disabled={isLoading}
+            disabled={state.isLoading}
             className={`
               w-full py-3 mt-6 text-center font-semibold rounded-lg 
               transition duration-200 shadow-md
-              ${isLoading 
+              ${state.isLoading 
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                 : 'text-gray-800 bg-white hover:bg-gray-100'
               }
             `}
           >
-            {isLoading ? 'Entrando...' : 'Entrar'}
+            {state.isLoading ? 'Entrando...' : 'Entrar'}
           </button>
         </form>
 
