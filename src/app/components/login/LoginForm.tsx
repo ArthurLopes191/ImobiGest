@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { useForm } from 'react-hook-form';
+import { useForm, SubmitHandler } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
@@ -20,8 +20,10 @@ const loginSchema = z.object({
     .min(6, 'Senha deve ter pelo menos 6 caracteres'),
 });
 
+type LoginFormData = z.infer<typeof loginSchema>;
+
 export default function LoginForm() {
-  const [loginError, setLoginError] = useState('');
+  const [loginError, setLoginError] = useState<string>('');
   const router = useRouter();
   const { login, state } = useAuth();
 
@@ -29,18 +31,18 @@ export default function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm({
+  } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = async (data) => {
+  const onSubmit: SubmitHandler<LoginFormData> = async (data) => {
     setLoginError('');
     
     try {
       await login(data.email, data.password);
       router.push('/home');
     } catch (error) {
-      setLoginError(error.message || 'Erro ao fazer login');
+      setLoginError(error instanceof Error ? error.message : 'Erro ao fazer login');
     }
   };
 

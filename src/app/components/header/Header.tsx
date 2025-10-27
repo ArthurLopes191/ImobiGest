@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { usePathname } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface HeaderProps {
@@ -9,6 +10,24 @@ interface HeaderProps {
 
 const Header = ({ onToggleSidebar }: HeaderProps) => {
   const { state } = useAuth();
+  const pathname = usePathname();
+
+  const getPageTitle = () => {
+    switch (pathname) {
+      case '/dashboard':
+        return 'Dashboard';
+      case '/configuracoes':
+        return 'Configurações';
+      case '/vendas':
+        return 'Vendas';
+      case '/clientes':
+        return 'Clientes';
+      case '/relatorios':
+        return 'Relatórios';
+      default:
+        return 'ImobiGest';
+    }
+  };
 
   return (
     <header className="bg-black shadow-sm border-b border-gray-200 p-4">
@@ -22,7 +41,7 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="text-2xl font-bold ml-2 text-white">Home</h1>
+          <h1 className="text-2xl font-bold ml-2 text-white">{getPageTitle()}</h1>
         </div>
         
       </div>
