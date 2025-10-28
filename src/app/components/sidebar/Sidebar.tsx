@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
+import Link from 'next/link';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -58,13 +59,13 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
           <ul className="space-y-2">
             {menuItems.map((item) => (
               <li key={item.href}>
-                <a
+                <Link
                   href={item.href}
                   className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors"
                 >
                   <span className="text-xl">{item.icon}</span>
                   <span>{item.label}</span>
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
