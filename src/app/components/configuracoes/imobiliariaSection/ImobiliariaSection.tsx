@@ -31,7 +31,7 @@ export default function ImobiliariaSection({ onImobiliariaClick }: ImobiliariaSe
   const fetchImobiliarias = async () => {
     try {
       const token = getCookieValue('token');
-      
+
       if (!token) {
         console.error('Token de autenticação não encontrado');
         return;
@@ -92,14 +92,14 @@ export default function ImobiliariaSection({ onImobiliariaClick }: ImobiliariaSe
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">
+      <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+          <h1 className="text-lg sm:text-2xl font-bold text-gray-800">
             Configurações das Imobiliárias
           </h1>
           <button
             onClick={handleNewImobiliaria}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors whitespace-nowrap text-sm sm:text-base w-full sm:w-auto cursor-pointer"
           >
             Nova Imobiliária
           </button>
@@ -119,7 +119,7 @@ export default function ImobiliariaSection({ onImobiliariaClick }: ImobiliariaSe
               </span>
             )}
           </h2>
-          
+
           {isLoadingImobiliarias ? (
             <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -133,8 +133,8 @@ export default function ImobiliariaSection({ onImobiliariaClick }: ImobiliariaSe
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {imobiliarias.map((imobiliaria) => (
-                <div 
-                  key={imobiliaria.id} 
+                <div
+                  key={imobiliaria.id}
                   className="border border-gray-200 rounded-lg p-4 transition-all"
                 >
                   <div className="flex justify-between items-start mb-2">
@@ -150,14 +150,14 @@ export default function ImobiliariaSection({ onImobiliariaClick }: ImobiliariaSe
                     {onImobiliariaClick && (
                       <button
                         onClick={() => handleConfigureClick(imobiliaria)}
-                        className="text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded hover:bg-blue-100 transition-colors"
+                        className="text-xs text-blue-600 bg-blue-50 px-3 py-1 rounded hover:bg-blue-100 transition-colors cursor-pointer"
                       >
                         Configurar
                       </button>
                     )}
                     <button
                       onClick={() => handleEditImobiliaria(imobiliaria)}
-                      className="text-xs text-green-600 bg-green-50 px-3 py-1 rounded hover:bg-green-100 transition-colors"
+                      className="text-xs text-green-600 bg-green-50 px-3 py-1 rounded hover:bg-green-100 transition-colors cursor-pointer"
                     >
                       Editar
                     </button>
