@@ -29,7 +29,7 @@ export default function CargoSection({ onCargoClick }: CargoSectionProps) {
   const fetchCargos = async () => {
     try {
       const token = getCookieValue('token');
-      
+
       if (!token) {
         console.error('Token de autenticação não encontrado');
         return;
@@ -86,13 +86,13 @@ export default function CargoSection({ onCargoClick }: CargoSectionProps) {
   return (
     <>
       <div className="bg-white rounded-lg shadow-md p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
             Configurações dos Cargos
           </h1>
           <button
             onClick={handleNewCargo}
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors whitespace-nowrap text-sm sm:text-base w-full sm:w-auto cursor-pointer"
           >
             Novo Cargo
           </button>
@@ -107,7 +107,7 @@ export default function CargoSection({ onCargoClick }: CargoSectionProps) {
               </span>
             )}
           </h2>
-          
+
           {isLoadingCargos ? (
             <div className="text-center py-8">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
@@ -121,14 +121,13 @@ export default function CargoSection({ onCargoClick }: CargoSectionProps) {
           ) : (
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
               {cargos.map((cargo) => (
-                <div 
-                  key={cargo.id} 
+                <div
+                  key={cargo.id}
                   onClick={() => handleCargoClick(cargo)}
-                  className={`border border-gray-200 rounded-lg p-4 transition-all ${
-                    onCargoClick 
-                      ? 'cursor-pointer hover:shadow-md hover:border-green-300' 
+                  className={`border border-gray-200 rounded-lg p-4 transition-all ${onCargoClick
+                      ? 'cursor-pointer hover:shadow-md hover:border-green-300'
                       : 'cursor-pointer hover:shadow-md hover:border-green-300'
-                  }`}
+                    }`}
                 >
                   <div className="text-center">
                     <h3 className="font-semibold text-gray-800">{cargo.nome}</h3>

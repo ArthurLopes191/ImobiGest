@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { FaHome, FaMoneyBill, FaUserFriends, FaCog, FaDoorOpen} from "react-icons/fa";
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import Link from 'next/link';
@@ -20,10 +20,10 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
   };
 
   const menuItems = [
-    { icon: '🏠', label: 'Home', href: '/home' },
-    { icon: '💰', label: 'Vendas', href: '/vendas' },
-    { icon: '👥', label: 'Profissionais', href: '/profissionais' },
-    { icon: '⚙️', label: 'Configuracoes', href: '/configuracoes' }
+    { icon: <FaHome />, label: 'Home', href: '/home' },
+    { icon: <FaMoneyBill/>, label: 'Vendas', href: '/vendas' },
+    { icon: <FaUserFriends />, label: 'Profissionais', href: '/profissionais' },
+    { icon: <FaCog />, label: 'Configuracoes', href: '/configuracoes' }
   ];
 
   return (
@@ -77,7 +77,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
             onClick={handleLogout}
             className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition-colors text-left"
           >
-            <span className="text-xl">🚪</span>
+            <FaDoorOpen />
             <span>Logout</span>
           </button>
         </div>
