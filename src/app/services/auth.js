@@ -22,8 +22,8 @@ export const authService = {
 
       const data = await response.json();
       
-      // Salvar token no cookie (expira em 7 dias)
-      Cookies.set('token', data.token, { expires: 7 });
+      // Salvar token no cookie (expira em 2 dias)
+      Cookies.set('token', data.token, { expires: 2 });
       
       return data;
     } catch (error) {

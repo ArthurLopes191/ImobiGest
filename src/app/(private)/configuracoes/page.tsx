@@ -62,7 +62,15 @@ export default function Configuracoes() {
     fetchCargos();
   }, []);
 
+  // Função para atualizar cargos quando um novo é criado/editado/deletado
+  const handleCargoUpdate = () => {
+    fetchCargos();
+  };
+
   const handleImobiliariaClick = (imobiliaria: Imobiliaria) => {
+    // Atualiza os cargos antes de abrir o modal
+    fetchCargos();
+    
     setSelectedImobiliaria({
       id: imobiliaria.id,
       nome: imobiliaria.nome
@@ -72,11 +80,11 @@ export default function Configuracoes() {
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
-      {/* Seção de Imobiliárias - Agora como componente separado */}
+      {/* Seção de Imobiliárias */}
       <ImobiliariaSection onImobiliariaClick={handleImobiliariaClick} />
 
-      {/* Seção de Cargos - Componente separado */}
-      <CargoSection />
+      {/* Seção de Cargos - Passa callback para atualizar cargos */}
+      <CargoSection onCargoUpdate={handleCargoUpdate} />
 
       {/* Modal de Configuração de Comissão */}
       <ConfigComissaoModal

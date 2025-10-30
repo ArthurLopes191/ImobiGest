@@ -10,9 +10,10 @@ interface Cargo {
 
 interface CargoSectionProps {
   onCargoClick?: (cargo: Cargo) => void;
+  onCargoUpdate?: () => void; 
 }
 
-export default function CargoSection({ onCargoClick }: CargoSectionProps) {
+export default function CargoSection({ onCargoClick, onCargoUpdate }: CargoSectionProps) {
   const [cargos, setCargos] = useState<Cargo[]>([]);
   const [isLoadingCargos, setIsLoadingCargos] = useState(true);
   const [showCargoModal, setShowCargoModal] = useState(false);
@@ -61,6 +62,9 @@ export default function CargoSection({ onCargoClick }: CargoSectionProps) {
 
   const handleCargoModalSuccess = () => {
     fetchCargos();
+    if (onCargoUpdate) {
+      onCargoUpdate();
+    }
   };
 
   const handleNewCargo = () => {
