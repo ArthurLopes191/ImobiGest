@@ -80,7 +80,6 @@ export default function ProfissionalSection({ onProfissionalClick }: Profissiona
         }
     };
 
-    // Converter imobiliárias para o formato que o modal espera
     const getImobiliariasParaModal = (): ImobiliariaModal[] => {
         const imobiliariasUnicas = Array.from(
             new Map(profissionais.map(p => [p.idImobiliaria, p.imobiliaria])).entries()
