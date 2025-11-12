@@ -20,6 +20,11 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
     const [cargosDisponiveis, setCargosDisponiveis] = useState<CargoComissao[]>([]);
     const [isLoadingProfissionais, setIsLoadingProfissionais] = useState(false);
 
+    // Log quando comissaoData muda
+    useEffect(() => {
+        console.log('📊 comissaoData atualizado:', comissaoData);
+    }, [comissaoData]);
+
     const getCookieValue = (name: string): string | null => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -55,21 +60,54 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
             const token = getCookieValue('token');
             if (!token) return;
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/comissao/venda/${idVenda}`, {
+            console.log('🔍 Buscando comissão existente para venda:', idVenda);
+
+            // Primeiro tentar o endpoint específico
+            let response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/comissao/venda/${idVenda}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
+            let comissoes = [];
+
             if (response.ok) {
-                const comissoes = await response.json();
-                if (comissoes && comissoes.length > 0) {
-                    const primeiraComissao = comissoes[0];
-                    if (primeiraComissao.profissional) {
-                        setComissaoData(prev => ({
-                            ...prev,
-                            idProfissional: primeiraComissao.profissional.id
-                        }));
-                    }
+                comissoes = await response.json();
+                console.log('✅ Comissões encontradas via endpoint específico:', comissoes);
+            } else {
+                console.log('⚠️ Endpoint específico falhou, tentando buscar todas e filtrar...');
+                
+                // Se falhar, buscar todas as comissões e filtrar
+                response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/comissao`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const todasComissoes = await response.json();
+                    comissoes = todasComissoes.filter((comissao: any) => 
+                        comissao.idVenda === parseInt(idVenda)
+                    );
+                    console.log('✅ Comissões filtradas de todas:', comissoes);
+                } else {
+                    console.error('❌ Ambos os métodos falharam');
+                    return;
                 }
+            }
+                
+            if (comissoes && comissoes.length > 0) {
+                const primeiraComissao = comissoes[0];
+                console.log('👤 Primeira comissão:', primeiraComissao);
+                
+                // Usar idProfissional diretamente, não profissional.id
+                if (primeiraComissao.idProfissional) {
+                    console.log('✅ Definindo profissional selecionado:', primeiraComissao.idProfissional);
+                    setComissaoData(prev => ({
+                        ...prev,
+                        idProfissional: primeiraComissao.idProfissional
+                    }));
+                } else {
+                    console.log('❌ idProfissional não encontrado na comissão');
+                }
+            } else {
+                console.log('⚠️ Nenhuma comissão encontrada para a venda');
             }
         } catch (err) {
             console.error('❌ Erro ao buscar comissão existente:', err);
@@ -149,6 +187,22 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
         }
     }, [showModal]);
 
+    // Buscar comissão existente no modo edição (após profissionais serem carregados)
+    useEffect(() => {
+        console.log('🔍 useEffect comissão existente:', {
+            mode,
+            vendaId,
+            showModal,
+            todosProfissionaisLength: todosProfissionais.length,
+            shouldFetch: mode === 'edit' && vendaId && showModal && todosProfissionais.length > 0
+        });
+        
+        if (mode === 'edit' && vendaId && showModal && todosProfissionais.length > 0) {
+            console.log('🔍 Todos os profissionais carregados, buscando comissão existente...');
+            fetchComissaoExistente(vendaId);
+        }
+    }, [mode, vendaId, showModal, todosProfissionais.length]);
+
     // Filtrar profissionais por imobiliária
     useEffect(() => {
         console.log('🔍 Filtragem - idImobiliaria:', idImobiliaria);
@@ -221,13 +275,6 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
             setComissaoData(prev => ({ ...prev, idsCargos: [] }));
         }
     }, [comissaoData.idProfissional, profissionaisFiltrados]);
-
-    // Buscar comissão existente no modo edição
-    useEffect(() => {
-        if (mode === 'edit' && vendaId && showModal) {
-            fetchComissaoExistente(vendaId);
-        }
-    }, [mode, vendaId, showModal]);
 
     return {
         comissaoData,

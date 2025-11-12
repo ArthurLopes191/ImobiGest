@@ -14,6 +14,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
     const [vendas, setVendas] = useState<Venda[]>([]);
     const [imobiliarias, setImobiliarias] = useState<Imobiliaria[]>([]);
     const [comissoes, setComissoes] = useState<any[]>([]);
+    const [profissionais, setProfissionais] = useState<any[]>([]);
     const [isLoadingVendas, setIsLoadingVendas] = useState(true);
     const [showVendaModal, setShowVendaModal] = useState(false);
     const [selectedVenda, setSelectedVenda] = useState<Venda | null>(null);
@@ -41,11 +42,30 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
 
             if (response.ok) {
                 const imobiliariasData = await response.json();
-                console.log('✅ Imobiliárias carregadas:', imobiliariasData);
                 setImobiliarias(imobiliariasData);
             }
         } catch (err) {
             console.error('❌ Erro ao carregar imobiliárias:', err);
+        }
+    };
+
+    const loadProfissionais = async () => {
+        try {
+            const token = getCookieValue('token');
+            if (!token) return;
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/profissional`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const profissionaisData = await response.json();
+                setProfissionais(profissionaisData);
+            } else {
+                console.error('❌ Erro HTTP ao carregar profissionais:', response.status);
+            }
+        } catch (err) {
+            console.error('❌ Erro ao carregar profissionais:', err);
         }
     };
 
@@ -60,8 +80,9 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
 
             if (response.ok) {
                 const comissoesData = await response.json();
-                console.log('✅ Comissões carregadas:', comissoesData);
                 setComissoes(comissoesData);
+            } else {
+                console.error('❌ Erro HTTP ao carregar comissões:', response.status);
             }
         } catch (err) {
             console.error('❌ Erro ao carregar comissões:', err);
@@ -82,7 +103,6 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
 
             if (response.ok) {
                 const vendasData = await response.json();
-                console.log('✅ Vendas carregadas:', vendasData);
                 setVendas(vendasData);
             } else {
                 console.error('Erro ao carregar vendas:', response.status);
@@ -97,6 +117,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
 
         try {
             await loadImobiliarias();
+            await loadProfissionais();
             await loadComissoes();
             await loadVendas();
         } catch (err) {
@@ -111,9 +132,9 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
     }, []);
 
     const handleVendaModalSuccess = () => {
-        console.log('🔄 Recarregando após sucesso no modal...');
         loadVendas();
         loadComissoes();
+        loadProfissionais();
     };
 
     const handleNewVenda = () => {
@@ -149,7 +170,6 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
     };
 
     const getVendedores = (venda: Venda): string => {
-        // Busca comissões relacionadas a esta venda
         const comissoesVenda = comissoes.filter(comissao => 
             comissao.idVenda === parseInt(venda.id)
         );
@@ -158,9 +178,14 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
             return 'Sem vendedor';
         }
 
+        // Busca os nomes dos profissionais usando idProfissional
         const vendedores = comissoesVenda
-            .map(comissao => comissao.profissional?.nome)
+            .map(comissao => {
+                const profissional = profissionais.find(prof => prof.id === comissao.idProfissional);
+                return profissional?.nome;
+            })
             .filter(nome => nome)
+            .filter((nome, index, array) => array.indexOf(nome) === index) // Remove duplicatas
             .join(', ');
 
         return vendedores || 'Sem vendedor';
