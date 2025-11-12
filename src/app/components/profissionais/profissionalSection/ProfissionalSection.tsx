@@ -10,7 +10,9 @@ interface ProfissionalSectionProps {
 
 export default function ProfissionalSection({ onProfissionalClick }: ProfissionalSectionProps) {
     const [profissionais, setProfissionais] = useState<Profissional[]>([]);
+    const [imobiliarias, setImobiliarias] = useState<ImobiliariaModal[]>([]);
     const [isLoadingProfissionais, setIsLoadingProfissionais] = useState(true);
+    const [isLoadingImobiliarias, setIsLoadingImobiliarias] = useState(true);
     const [showProfissionalModal, setShowProfissionalModal] = useState(false);
     const [selectedProfissional, setSelectedProfissional] = useState<Profissional | null>(null);
     const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
@@ -22,8 +24,42 @@ export default function ProfissionalSection({ onProfissionalClick }: Profissiona
         return null;
     };
 
+    const fetchImobiliarias = async () => {
+        try {
+            const token = getCookieValue('token');
+            if (!token) {
+                console.error('Token não encontrado');
+                return;
+            }
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/imobiliaria`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (response.ok) {
+                const imobiliariasData = await response.json();
+              
+                const imobiliariasFormatadas = imobiliariasData.map((imob: any) => ({
+                    id: imob.id.toString(),
+                    nome: imob.nome,
+                    meta: imob.meta || 0
+                }));
+                
+                setImobiliarias(imobiliariasFormatadas);
+            } else {
+                console.error('Erro ao carregar imobiliárias:', response.status);
+            }
+
+        } catch (err) {
+            console.error('❌ Erro ao carregar imobiliárias:', err);
+        } finally {
+            setIsLoadingImobiliarias(false);
+        }
+    };
+
     const loadAllData = async () => {
         setIsLoadingProfissionais(true);
+        setIsLoadingImobiliarias(true);
         
         try {
             const token = getCookieValue('token');
@@ -32,16 +68,18 @@ export default function ProfissionalSection({ onProfissionalClick }: Profissiona
                 return;
             }
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/profissional/completo`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+            const [profissionaisResponse] = await Promise.all([
+                fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/profissional/completo`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }),
+                fetchImobiliarias()
+            ]);
             
-            if (response.ok) {
-                const profissionaisData = await response.json();
-                console.log('✅ Profissionais completos carregados:', profissionaisData);
+            if (profissionaisResponse.ok) {
+                const profissionaisData = await profissionaisResponse.json();
                 setProfissionais(profissionaisData);
             } else {
-                console.error('Erro ao carregar profissionais:', response.status);
+                console.error('Erro ao carregar profissionais:', profissionaisResponse.status);
             }
 
         } catch (err) {
@@ -56,7 +94,6 @@ export default function ProfissionalSection({ onProfissionalClick }: Profissiona
     }, []);
 
     const handleProfissionalModalSuccess = () => {
-        console.log('🔄 Recarregando após sucesso no modal...');
         loadAllData();
     };
 
@@ -80,19 +117,6 @@ export default function ProfissionalSection({ onProfissionalClick }: Profissiona
         }
     };
 
-    // Converter imobiliárias para o formato que o modal espera
-    const getImobiliariasParaModal = (): ImobiliariaModal[] => {
-        const imobiliariasUnicas = Array.from(
-            new Map(profissionais.map(p => [p.idImobiliaria, p.imobiliaria])).entries()
-        );
-        
-        return imobiliariasUnicas.map(([id, imobiliaria]) => ({
-            id: id.toString(),
-            nome: imobiliaria.nome,
-            meta: 0
-        }));
-    };
-
     return (
         <>
             <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
@@ -102,9 +126,10 @@ export default function ProfissionalSection({ onProfissionalClick }: Profissiona
                     </h1>
                     <button
                         onClick={handleNewProfissional}
-                        className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors whitespace-nowrap text-sm sm:text-base w-full sm:w-auto"
+                        disabled={isLoadingImobiliarias}
+                        className="bg-blue-600 text-white px-3 sm:px-4 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors whitespace-nowrap text-sm sm:text-base w-full sm:w-auto disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        Novo Profissional
+                        {isLoadingImobiliarias ? 'Carregando...' : 'Novo Profissional'}
                     </button>
                 </div>
 
@@ -199,7 +224,7 @@ export default function ProfissionalSection({ onProfissionalClick }: Profissiona
                 onSuccess={handleProfissionalModalSuccess}
                 profissional={selectedProfissional}
                 mode={modalMode}
-                imobiliarias={getImobiliariasParaModal()}
+                imobiliarias={imobiliarias}
             />
         </>
     );
