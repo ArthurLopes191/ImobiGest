@@ -14,8 +14,8 @@ const Header = ({ onToggleSidebar }: HeaderProps) => {
 
   const getPageTitle = () => {
     switch (pathname) {
-      case '/dashboard':
-        return 'Dashboard';
+      case '/home':
+        return 'Home';
       case '/configuracoes':
         return 'Configurações';
       case '/vendas':
