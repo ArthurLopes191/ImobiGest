@@ -2,6 +2,11 @@ import { authService } from './auth';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+export interface ComissaoPorCargo {
+  nomeCargo: string;
+  valorComissao: number;
+}
+
 export interface DashboardData {
   imobiliaria: {
     id: string;
@@ -12,16 +17,12 @@ export interface DashboardData {
     metaImobiliaria: number;
     faltaParaMeta: number;
     comissaoGeralTotal: number;
-    comissaoGeralEquipe: number;
-    comissaoSocios: number;
-    comissaoCorretores: number;
   };
   medias: {
-    mensalAnoEquipe: number;
-    periodoEquipe: number;
     mensalAnoComissao: number;
     periodoComissao: number;
   };
+  comissoesPorCargo: ComissaoPorCargo[];
   periodo: {
     ano: number;
     mes: number;
@@ -35,13 +36,12 @@ interface ApiDashboardResponse {
   metaImobiliaria: number;
   valorParaMeta: number;
   comissaoGeralTotal: number;
-  comissaoGeralEquipe: number | null;
-  comissaoSocios: number;
-  comissaoCorretores: number;
   mediaMensalAnoComissao: number | null;
   mediaPeriodoComissao: number | null;
-  mediaPeriodoEquipe: number | null;
-  mediasMensalAnoEquipe: number | null;
+  comissoesPorCargo: {
+    nomeCargo: string;
+    valorComissao: number;
+  }[];
 }
 
 export const dashboardService = {
@@ -125,17 +125,13 @@ export const dashboardService = {
       resumo: {
         metaImobiliaria: apiData.metaImobiliaria,
         faltaParaMeta: apiData.valorParaMeta,
-        comissaoGeralTotal: apiData.comissaoGeralTotal,
-        comissaoGeralEquipe: apiData.comissaoGeralEquipe || 0,
-        comissaoSocios: apiData.comissaoSocios,
-        comissaoCorretores: apiData.comissaoCorretores
+        comissaoGeralTotal: apiData.comissaoGeralTotal
       },
       medias: {
-        mensalAnoEquipe: apiData.mediasMensalAnoEquipe || 0,
-        periodoEquipe: apiData.mediaPeriodoEquipe || 0,
         mensalAnoComissao: apiData.mediaMensalAnoComissao || 0,
         periodoComissao: apiData.mediaPeriodoComissao || 0
       },
+      comissoesPorCargo: apiData.comissoesPorCargo || [],
       periodo: {
         ano: dataInicio ? new Date(dataInicio).getFullYear() : currentDate.getFullYear(),
         mes: dataInicio ? new Date(dataInicio).getMonth() + 1 : currentDate.getMonth() + 1,
@@ -158,17 +154,17 @@ export const dashboardService = {
       resumo: {
         metaImobiliaria: 150000.00,
         faltaParaMeta: 45000.00,
-        comissaoGeralTotal: 105000.00,
-        comissaoGeralEquipe: 80000.00,
-        comissaoSocios: 25000.00,
-        comissaoCorretores: 55000.00
+        comissaoGeralTotal: 105000.00
       },
       medias: {
-        mensalAnoEquipe: 12500.00,
-        periodoEquipe: 15200.00,
         mensalAnoComissao: 9800.00,
         periodoComissao: 11400.00
       },
+      comissoesPorCargo: [
+        { nomeCargo: "Corretor", valorComissao: 55000.00 },
+        { nomeCargo: "Gerente", valorComissao: 25000.00 },
+        { nomeCargo: "Sócio", valorComissao: 25000.00 }
+      ],
       periodo: {
         ano: currentDate.getFullYear(),
         mes: currentDate.getMonth() + 1,

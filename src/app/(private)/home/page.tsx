@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { dashboardService, DashboardData } from '@/app/services/dashboard';
+import { dashboardService, DashboardData, ComissaoPorCargo } from '@/app/services/dashboard';
 
 interface Imobiliaria {
   id: string;
@@ -96,6 +96,7 @@ export default function Home() {
     <div className="flex flex-col h-screen bg-gray-100 p-6">
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
+          <h1 className="text-3xl font-bold text-gray-800">Dashboard - ImobiGest</h1>
           <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
             📅 Período: {new Date(dataInicio).toLocaleDateString('pt-BR')} - {new Date(dataFim).toLocaleDateString('pt-BR')}
           </div>
@@ -122,7 +123,7 @@ export default function Home() {
         </div>
 
         {/* Filtro por Período */}
-        <div className="mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-300 rounded-md shadow-sm">
+        <div className="mb-6 p-4 bg-white rounded-lg shadow-sm border">
           <h3 className="text-lg font-medium text-gray-700 mb-4">Filtrar por Período</h3>
           
           <div className="space-y-4">
@@ -209,7 +210,7 @@ export default function Home() {
             Erro: {error}
           </div>
         </div>
-      ) : dashboardData && dashboardData.resumo && dashboardData.medias ? (
+      ) : dashboardData && dashboardData.resumo ? (
         <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Meta da Imobiliária */}
           <div className="bg-white rounded-lg shadow-md p-6">
@@ -235,47 +236,20 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Comissão Geral da Equipe
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Comissão Geral da Equipe</h3>
-            <div className={`text-2xl font-bold ${getValueColor(dashboardData.resumo?.comissaoGeralEquipe, 'text-green-600')}`}>
-              {formatValue(dashboardData.resumo?.comissaoGeralEquipe)}
-            </div>
-          </div> */}
-
-          {/* Comissão dos Sócios */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Comissão dos Sócios</h3>
-            <div className={`text-2xl font-bold ${getValueColor(dashboardData.resumo?.comissaoSocios, 'text-purple-600')}`}>
-              {formatValue(dashboardData.resumo?.comissaoSocios)}
-            </div>
-          </div>
-
-          {/* Comissão dos Corretores */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Comissão dos Corretores</h3>
-            <div className={`text-2xl font-bold ${getValueColor(dashboardData.resumo?.comissaoCorretores, 'text-indigo-600')}`}>
-              {formatValue(dashboardData.resumo?.comissaoCorretores)}
-            </div>
-          </div>
-
-          {/* Média Mensal do Ano (Equipe)
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Média Mensal do Ano</h3>
-            <p className="text-sm text-gray-500 mb-2">(Geral da Equipe)</p>
-            <div className={`text-2xl font-bold ${getValueColor(dashboardData.medias?.mensalAnoEquipe, 'text-orange-600')}`}>
-              {formatValue(dashboardData.medias?.mensalAnoEquipe)}
-            </div>
-          </div> */}
-
-          {/* Média do Período (Equipe)
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Média do Período</h3>
-            <p className="text-sm text-gray-500 mb-2">(Geral da Equipe)</p>
-            <div className={`text-2xl font-bold ${getValueColor(dashboardData.medias?.periodoEquipe, 'text-orange-600')}`}>
-              {formatValue(dashboardData.medias?.periodoEquipe)}
-            </div>
-          </div> */}
+          {/* Comissões por Cargo - Dinâmicas */}
+          {dashboardData.comissoesPorCargo?.map((comissao, index) => {
+            const colors = ['text-purple-600', 'text-indigo-600', 'text-orange-600', 'text-pink-600', 'text-cyan-600'];
+            const colorClass = colors[index % colors.length];
+            
+            return (
+              <div key={comissao.nomeCargo} className="bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">Comissão {comissao.nomeCargo}</h3>
+                <div className={`text-2xl font-bold ${getValueColor(comissao.valorComissao, colorClass)}`}>
+                  {formatValue(comissao.valorComissao)}
+                </div>
+              </div>
+            );
+          })}
 
           {/* Média Mensal do Período (Comissão) */}
           <div className="bg-white rounded-lg shadow-md p-6">
