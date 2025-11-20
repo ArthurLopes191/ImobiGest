@@ -48,6 +48,33 @@ export interface CargoComissao {
   nome: string;
 }
 
+// Interfaces para parcelas
+export interface Parcela {
+  id?: number;
+  numeroParcela: number;
+  valorParcela: number;
+  dataVencimento: string;
+  status: 'PENDENTE' | 'PAGO' | 'ATRASADO';
+  idVenda: number;
+}
+
+export interface ParcelaData {
+  numeroParcela: number;
+  valorParcela: number;
+  dataVencimento: string;
+  status: 'PENDENTE' | 'PAGO' | 'ATRASADO';
+  idVenda: number;
+}
+
+export interface ParcelaFormProps {
+  vendaId?: string;
+  valorTotal: number;
+  qtdParcelas: number;
+  dataVenda: string;
+  formaPagamento: 'A_VISTA' | 'PARCELADO';
+  onParcelasChange?: (parcelas: Parcela[]) => void;
+}
+
 export interface ProfissionalComissao {
   id: number;
   nome: string;

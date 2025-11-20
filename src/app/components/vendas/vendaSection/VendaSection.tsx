@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import VendaModal from '@/app/components/vendas/vendaModal/VendaModal';
+import ParcelaInfo from './ParcelaInfo';
 import { Venda, VendaSectionProps, ImobiliariaVenda, VendaModalMode } from '@/types/venda';
 
 interface Imobiliaria {
@@ -23,6 +24,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
     // Estados para paginação
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage] = useState(10);
+    const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     const getCookieValue = (name: string): string | null => {
         const value = `; ${document.cookie}`;
@@ -135,6 +137,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
         loadVendas();
         loadComissoes();
         loadProfissionais();
+        setRefreshTrigger(prev => prev + 1); // Força recarregamento das parcelas
     };
 
     const handleNewVenda = () => {
@@ -285,11 +288,12 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                                 {/* Header da tabela */}
                                 <div className="bg-gray-50 rounded-t-lg border border-gray-200">
                                     <div className="grid grid-cols-12 gap-4 p-3 text-sm font-medium text-gray-700">
-                                        <div className="col-span-4">Imóvel</div>
+                                        <div className="col-span-3">Imóvel</div>
                                         <div className="col-span-2">Valor</div>
                                         <div className="col-span-2">Data</div>
                                         <div className="col-span-2">Imobiliária</div>
                                         <div className="col-span-2">Vendedores</div>
+                                        <div className="col-span-1">Parcelas</div>
                                     </div>
                                 </div>
 
@@ -302,7 +306,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                                             className={`grid grid-cols-12 gap-4 p-3 text-sm border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
                                                 }`}
                                         >
-                                            <div className="col-span-4">
+                                            <div className="col-span-3">
                                                 <p className="font-medium text-gray-800 truncate" title={venda.descricaoImovel}>
                                                     {venda.descricaoImovel}
                                                 </p>
@@ -333,6 +337,14 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                                                 <p className="text-gray-700 truncate" title={getVendedores(venda)}>
                                                     {getVendedores(venda)}
                                                 </p>
+                                            </div>
+
+                                            <div className="col-span-1">
+                                                <ParcelaInfo
+                                                    vendaId={venda.id}
+                                                    formaPagamento={venda.formaPagamento}
+                                                    refreshTrigger={refreshTrigger}
+                                                />
                                             </div>
                                         </div>
                                     ))}
@@ -397,6 +409,16 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                                                 <p className="text-sm text-gray-600">
                                                     <span className="font-medium">Vendedor(es):</span> {getVendedores(venda)}
                                                 </p>
+                                                <div className="pt-1">
+                                                    <span className="text-sm font-medium text-gray-600">Parcelas:</span>
+                                                    <div className="mt-1">
+                                                        <ParcelaInfo
+                                                            vendaId={venda.id}
+                                                            formaPagamento={venda.formaPagamento}
+                                                            refreshTrigger={refreshTrigger}
+                                                        />
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
