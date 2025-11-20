@@ -4,8 +4,10 @@ import { useState } from 'react';
 import { VendaModalProps } from '@/types/venda';
 import { useVendaForm } from './useVendaForm';
 import { useComissao } from './useComissao';
+import { useParcelas } from './useParcelas';
 import VendaForm from './VendaForm';
 import ComissaoForm from './ComissaoForm';
+import ParcelaManager from './ParcelaManager';
 import ModalActions from './ModalActions';
 import ModalMessages from './ModalMessages';
 
@@ -44,6 +46,24 @@ export default function VendaModal({
         idImobiliaria: formData.idImobiliaria
     });
 
+    const {
+        parcelas,
+        isLoading: isLoadingParcelas,
+        error: errorParcelas,
+        criarParcelas,
+        atualizarTodasParcelas,
+        atualizarParcelaLocal,
+        resetParcelas,
+        gerarParcelasAutomaticas
+    } = useParcelas({
+        vendaId: venda?.id,
+        valorTotal: formData.valorTotal,
+        qtdParcelas: formData.qtdParcelas,
+        dataVenda: formData.dataVenda,
+        formaPagamento: formData.formaPagamento,
+        mode
+    });
+
     const getCookieValue = (name: string): string | null => {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -54,6 +74,7 @@ export default function VendaModal({
     const handleClose = () => {
         resetForm();
         resetComissaoData();
+        resetParcelas();
         setError('');
         setSuccess('');
         onClose();
@@ -112,18 +133,32 @@ export default function VendaModal({
 
             const vendaResponse = await response.json();
 
-            // Gerenciar comissão
+            // Gerenciar comissão e parcelas
             if (mode === 'create' && vendaResponse.id) {
                 await criarComissao(vendaResponse.id);
-            } else if (mode === 'edit' && venda?.id && comissaoData.idProfissional) {
-                await atualizarComissao(venda.id);
+                if (formData.formaPagamento === 'PARCELADO') {
+                    await criarParcelas(vendaResponse.id);
+                }
+            } else if (mode === 'edit' && venda?.id) {
+                if (comissaoData.idProfissional) {
+                    await atualizarComissao(venda.id);
+                }
+                if (formData.formaPagamento === 'PARCELADO') {
+                    await atualizarTodasParcelas();
+                }
             }
 
             const successMessage = mode === 'create'
-                ? 'Venda e comissão criadas com sucesso!'
-                : comissaoData.idProfissional 
-                    ? 'Venda e comissão atualizadas com sucesso!'
-                    : 'Venda atualizada com sucesso!';
+                ? formData.formaPagamento === 'PARCELADO'
+                    ? 'Venda, comissão e parcelas criadas com sucesso!'
+                    : 'Venda e comissão criadas com sucesso!'
+                : formData.formaPagamento === 'PARCELADO' && comissaoData.idProfissional
+                    ? 'Venda, comissão e parcelas atualizadas com sucesso!'
+                    : comissaoData.idProfissional 
+                        ? 'Venda e comissão atualizadas com sucesso!'
+                        : formData.formaPagamento === 'PARCELADO'
+                            ? 'Venda e parcelas atualizadas com sucesso!'
+                            : 'Venda atualizada com sucesso!';
             setSuccess(successMessage);
 
             setTimeout(() => {
@@ -213,6 +248,15 @@ export default function VendaModal({
                                 mode={mode}
                                 onComissaoChange={handleComissaoChange}
                                 idImobiliaria={formData.idImobiliaria}
+                            />
+
+                            <ParcelaManager
+                                parcelas={parcelas}
+                                formaPagamento={formData.formaPagamento}
+                                isLoading={isLoadingParcelas}
+                                mode={mode}
+                                onParcelaChange={atualizarParcelaLocal}
+                                onRegenerarParcelas={gerarParcelasAutomaticas}
                             />
                         </div>
 
