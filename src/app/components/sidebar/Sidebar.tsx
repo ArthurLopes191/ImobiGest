@@ -61,7 +61,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 transition-colors"
+                  className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-800 hover:text-white transition-colors"
                 >
                   <span className="text-xl">{item.icon}</span>
                   <span>{item.label}</span>
@@ -75,7 +75,7 @@ export default function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <div className="p-4 border-t border-gray-700">
           <button
             onClick={handleLogout}
-            className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition-colors text-left"
+            className="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition-colors text-left cursor-pointer"
           >
             <FaDoorOpen />
             <span>Logout</span>

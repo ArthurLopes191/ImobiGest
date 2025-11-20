@@ -95,12 +95,6 @@ export default function Home() {
   return (
     <div className="flex flex-col h-screen bg-gray-100 p-6">
       <div className="mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-3xl font-bold text-gray-800">Dashboard - ImobiGest</h1>
-          <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-            📅 Período: {new Date(dataInicio).toLocaleDateString('pt-BR')} - {new Date(dataFim).toLocaleDateString('pt-BR')}
-          </div>
-        </div>
         
         {/* Seletor de Imobiliária */}
         <div className="mb-6">
@@ -123,7 +117,7 @@ export default function Home() {
         </div>
 
         {/* Filtro por Período */}
-        <div className="mb-6 p-4 bg-white rounded-lg shadow-sm border">
+        <div className="mb-6 p-4 bg-white rounded-lg shadow-sm border border-gray-300">
           <h3 className="text-lg font-medium text-gray-700 mb-4">Filtrar por Período</h3>
           
           <div className="space-y-4">
@@ -199,6 +193,13 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <div className="flex items-center justify-between mb-4">
+          {/* <h1 className="text-3xl font-bold text-gray-800">Dashboard - ImobiGest</h1> */}
+          <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+            📅 Período: {new Date(dataInicio).toLocaleDateString('pt-BR')} - {new Date(dataFim).toLocaleDateString('pt-BR')}
+          </div>
+        </div>
 
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
