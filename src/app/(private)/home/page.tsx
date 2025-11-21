@@ -194,13 +194,6 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex items-center justify-between mb-4">
-          {/* <h1 className="text-3xl font-bold text-gray-800">Dashboard - ImobiGest</h1> */}
-          <div className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
-            📅 Período: {new Date(dataInicio).toLocaleDateString('pt-BR')} - {new Date(dataFim).toLocaleDateString('pt-BR')}
-          </div>
-        </div>
-
       {loading ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-lg">Carregando dados...</div>

@@ -205,58 +205,34 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
 
     // Filtrar profissionais por imobiliária
     useEffect(() => {
-        console.log('🔍 Filtragem - idImobiliaria:', idImobiliaria);
-        console.log('🔍 Filtragem - todosProfissionais:', todosProfissionais);
-        
         if (idImobiliaria && todosProfissionais.length > 0) {
-            console.log('🔍 Tentando filtrar profissionais para imobiliária ID:', idImobiliaria);
-            
-            // Log da estrutura do primeiro profissional para debug
-            if (todosProfissionais[0]) {
-                console.log('🔍 Estrutura do primeiro profissional:', todosProfissionais[0]);
-                console.log('🔍 Imobiliária do primeiro profissional:', todosProfissionais[0].imobiliaria);
-                console.log('🔍 idImobiliaria do primeiro profissional:', todosProfissionais[0].idImobiliaria);
-            }
-            
-            // Tentar diferentes estruturas possíveis
-            let profissionaisDaImobiliaria = todosProfissionais.filter(
+            // Filtrar profissionais que pertencem à imobiliária selecionada
+            const profissionaisDaImobiliaria = todosProfissionais.filter(
                 profissional => {
-                    console.log(`🔍 Verificando profissional ${profissional.nome}:`, {
-                        imobiliaria: profissional.imobiliaria,
-                        idImobiliaria: profissional.idImobiliaria
-                    });
-                    
-                    // Tenta primeira estrutura: profissional.imobiliaria.id
-                    if (profissional.imobiliaria?.id === idImobiliaria) {
-                        console.log('✅ Match por imobiliaria.id');
-                        return true;
-                    }
-                    // Tenta segunda estrutura: profissional.idImobiliaria
-                    if (profissional.idImobiliaria === idImobiliaria) {
-                        console.log('✅ Match por idImobiliaria');
-                        return true;
-                    }
-                    console.log('❌ Sem match');
-                    return false;
+                    // Verificar tanto idImobiliaria quanto imobiliaria.id para compatibilidade
+                    return profissional.idImobiliaria === idImobiliaria || 
+                           profissional.imobiliaria?.id === idImobiliaria;
                 }
             );
             
-            console.log('🔍 Profissionais filtrados:', profissionaisDaImobiliaria);
-            
-            // TEMPORÁRIO: Se não encontrar nenhum, mostrar todos para debug
-            if (profissionaisDaImobiliaria.length === 0) {
-                console.log('⚠️ Nenhum profissional filtrado, usando todos para debug');
-                profissionaisDaImobiliaria = todosProfissionais;
-            }
-            
             setProfissionaisFiltrados(profissionaisDaImobiliaria);
+            
+            // Reset profissional selecionado se não estiver na lista filtrada
+            const profissionalAtualValido = profissionaisDaImobiliaria.some(
+                p => p.id === comissaoData.idProfissional
+            );
+            
+            if (comissaoData.idProfissional && !profissionalAtualValido) {
+                setComissaoData(prev => ({ ...prev, idProfissional: 0, idsCargos: [] }));
+                setCargosDisponiveis([]);
+            }
         } else {
             setProfissionaisFiltrados([]);
-            // Reset profissional selecionado quando imobiliária muda
+            // Reset profissional selecionado quando imobiliária não está selecionada
             setComissaoData(prev => ({ ...prev, idProfissional: 0, idsCargos: [] }));
             setCargosDisponiveis([]);
         }
-    }, [idImobiliaria, todosProfissionais]);
+    }, [idImobiliaria, todosProfissionais, comissaoData.idProfissional]);
 
     // Atualizar cargos quando profissional é selecionado
     useEffect(() => {
