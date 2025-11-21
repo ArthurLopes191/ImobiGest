@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import VendaSection from '@/app/components/vendas/vendaSection/VendaSection';
+import VendaSectionWithFilters from '@/app/components/vendas/vendaSection/VendaSectionWithFilters';
 
 interface Venda {
   id: string;
@@ -25,7 +26,8 @@ export default function Vendas() {
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
       {/* Seção de Vendas */}
-      <VendaSection />
+      {/* <VendaSection /> */}
+      <VendaSectionWithFilters />
     </div>
   );
 }
