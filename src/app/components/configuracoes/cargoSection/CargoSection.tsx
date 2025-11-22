@@ -6,6 +6,7 @@ import CargoModal from '@/app/components/configuracoes/cargoModal/CargoModal';
 interface Cargo {
   id: string;
   nome: string;
+  comissaoAutomatica: boolean;
 }
 
 interface CargoSectionProps {
@@ -135,9 +136,16 @@ export default function CargoSection({ onCargoClick, onCargoUpdate }: CargoSecti
                 >
                   <div className="text-center">
                     <h3 className="font-semibold text-gray-800">{cargo.nome}</h3>
-                    <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">
-                      {onCargoClick ? 'Selecionar' : 'Editar'}
-                    </span>
+                    {cargo.comissaoAutomatica && (
+                      <div className="inline-block mt-1 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded-full">
+                        Comissão Automática
+                      </div>
+                    )}
+                    <div className="mt-2">
+                      <span className="inline-block px-3 py-1 bg-green-100 text-green-800 text-xs rounded-full">
+                        {onCargoClick ? 'Selecionar' : 'Editar'}
+                      </span>
+                    </div>
                   </div>
                 </div>
               ))}

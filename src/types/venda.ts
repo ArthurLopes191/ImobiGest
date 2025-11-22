@@ -36,6 +36,7 @@ export interface ComissaoVenda {
   idVenda: number;
   idProfissional: number;
   idsCargos: number[];
+  tipoComissao: TipoComissao;
   profissional?: {
     id: number;
     nome: string;
@@ -46,6 +47,7 @@ export interface ComissaoVenda {
 export interface CargoComissao {
   id: number;
   nome: string;
+  comissaoAutomatica: boolean;
 }
 
 // Interfaces para parcelas
@@ -99,6 +101,8 @@ export interface ComissaoPayload {
 
 // Tipos para formulários de venda
 export type FormaPagamento = 'A_VISTA' | 'PARCELADO';
+
+export type TipoComissao = 'AUTOMATICA' | 'MANUAL';
 
 export type VendaModalMode = 'create' | 'edit';
 

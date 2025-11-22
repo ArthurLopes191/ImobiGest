@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 
 interface CargoData {
   nome: string;
+  comissaoAutomatica: boolean;
 }
 
 interface Cargo {
   id: string;
   nome: string;
+  comissaoAutomatica: boolean;
 }
 
 interface CargoModalProps {
@@ -22,7 +24,8 @@ interface CargoModalProps {
 export default function CargoModal({ showModal, onClose, onSuccess, cargo, mode }: CargoModalProps) {
   // ...existing code...
   const [formData, setFormData] = useState<CargoData>({
-    nome: ''
+    nome: '',
+    comissaoAutomatica: false
   });
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -32,18 +35,24 @@ export default function CargoModal({ showModal, onClose, onSuccess, cargo, mode 
   // Preenche o formulário quando está editando
   useEffect(() => {
     if (mode === 'edit' && cargo) {
-      setFormData({ nome: cargo.nome });
+      setFormData({ 
+        nome: cargo.nome,
+        comissaoAutomatica: cargo.comissaoAutomatica || false
+      });
     } else {
-      setFormData({ nome: '' });
+      setFormData({ 
+        nome: '',
+        comissaoAutomatica: false
+      });
     }
   }, [mode, cargo, showModal]);
 
   // ...existing code...
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
   };
 
@@ -55,7 +64,10 @@ export default function CargoModal({ showModal, onClose, onSuccess, cargo, mode 
   };
 
   const resetForm = () => {
-    setFormData({ nome: '' });
+    setFormData({ 
+      nome: '',
+      comissaoAutomatica: false
+    });
     setError('');
     setSuccess('');
   };
@@ -92,7 +104,8 @@ export default function CargoModal({ showModal, onClose, onSuccess, cargo, mode 
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          nome: formData.nome
+          nome: formData.nome,
+          comissaoAutomatica: formData.comissaoAutomatica
         })
       });
 
@@ -198,6 +211,23 @@ export default function CargoModal({ showModal, onClose, onSuccess, cargo, mode 
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Digite o nome do cargo (ex: Agenciador)"
               />
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="comissaoAutomatica"
+                name="comissaoAutomatica"
+                checked={formData.comissaoAutomatica}
+                onChange={handleInputChange}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="comissaoAutomatica" className="text-sm font-medium text-gray-700">
+                Comissão Automática
+              </label>
+            </div>
+            <div className="text-xs text-gray-500 mt-1">
+              Profissionais com este cargo ganharão comissão em todas as vendas da imobiliária automaticamente
             </div>
 
             {error && (
