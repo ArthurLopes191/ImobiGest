@@ -89,14 +89,18 @@ export interface ProfissionalComissao {
 }
 
 export interface ComissaoData {
-  idProfissional: number;
-  idsCargos: number[];
+  profissionais: Array<{
+    idProfissional: number;
+    idsCargos: number[];
+  }>;
 }
 
 export interface ComissaoPayload {
   idVenda: number;
-  idProfissional: number;
-  idsCargos: number[];
+  profissionais: Array<{
+    idProfissional: number;
+    idsCargos: number[];
+  }>;
 }
 
 // Tipos para formulários de venda

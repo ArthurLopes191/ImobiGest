@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { ComissaoData, ProfissionalComissao, CargoComissao, TipoComissao } from '@/types/venda';
 
 interface UseComissaoProps {
@@ -12,12 +12,10 @@ interface UseComissaoProps {
 
 export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComissaoProps) {
     const [comissaoData, setComissaoData] = useState<ComissaoData>({
-        idProfissional: 0,
-        idsCargos: []
+        profissionais: []
     });
     const [todosProfissionais, setTodosProfissionais] = useState<ProfissionalComissao[]>([]);
     const [profissionaisFiltrados, setProfissionaisFiltrados] = useState<ProfissionalComissao[]>([]);
-    const [cargosDisponiveis, setCargosDisponiveis] = useState<CargoComissao[]>([]);
     const [isLoadingProfissionais, setIsLoadingProfissionais] = useState(false);
 
     // Log quando comissaoData muda
@@ -75,6 +73,25 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
                 // Filtrar apenas comissões do tipo MANUAL
                 comissoes = comissoes.filter((comissao: any) => comissao.tipoComissao === 'MANUAL');
                 console.log('✅ Comissões filtradas (apenas MANUAL):', comissoes);
+                
+                if (comissoes && comissoes.length > 0) {
+                    // Transformar comissões em formato de múltiplos profissionais
+                    const profissionaisComissao = comissoes.map((comissao: any) => {
+                        const profissional = todosProfissionais.find(p => p.id === comissao.idProfissional);
+                        return {
+                            idProfissional: comissao.idProfissional,
+                            idsCargos: profissional?.cargos?.map(cargo => cargo.id) || []
+                        };
+                    });
+
+                    console.log('✅ Definindo profissionais selecionados:', profissionaisComissao);
+                    setComissaoData(prev => ({
+                        ...prev,
+                        profissionais: profissionaisComissao
+                    }));
+                } else {
+                    console.log('⚠️ Nenhuma comissão manual encontrada para a venda');
+                }
             } else {
                 console.log('⚠️ Endpoint específico falhou, tentando buscar todas e filtrar...');
                 
@@ -90,28 +107,27 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
                         comissao.tipoComissao === 'MANUAL'
                     );
                     console.log('✅ Comissões filtradas de todas (apenas MANUAL):', comissoes);
+                    
+                    if (comissoes && comissoes.length > 0) {
+                        // Transformar comissões em formato de múltiplos profissionais
+                        const profissionaisComissao = comissoes.map((comissao: any) => {
+                            const profissional = todosProfissionais.find(p => p.id === comissao.idProfissional);
+                            return {
+                                idProfissional: comissao.idProfissional,
+                                idsCargos: profissional?.cargos?.map(cargo => cargo.id) || []
+                            };
+                        });
+
+                        console.log('✅ Definindo profissionais selecionados (fallback):', profissionaisComissao);
+                        setComissaoData(prev => ({
+                            ...prev,
+                            profissionais: profissionaisComissao
+                        }));
+                    }
                 } else {
                     console.error('❌ Ambos os métodos falharam');
                     return;
                 }
-            }
-                
-            if (comissoes && comissoes.length > 0) {
-                const primeiraComissao = comissoes[0];
-                console.log('👤 Primeira comissão:', primeiraComissao);
-                
-                // Usar idProfissional diretamente, não profissional.id
-                if (primeiraComissao.idProfissional) {
-                    console.log('✅ Definindo profissional selecionado:', primeiraComissao.idProfissional);
-                    setComissaoData(prev => ({
-                        ...prev,
-                        idProfissional: primeiraComissao.idProfissional
-                    }));
-                } else {
-                    console.log('❌ idProfissional não encontrado na comissão');
-                }
-            } else {
-                console.log('⚠️ Nenhuma comissão encontrada para a venda');
             }
         } catch (err) {
             console.error('❌ Erro ao buscar comissão existente:', err);
@@ -122,67 +138,85 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
         const token = getCookieValue('token');
         if (!token) throw new Error('Token não encontrado');
 
-        if (!comissaoData.idsCargos || comissaoData.idsCargos.length === 0) {
-            throw new Error('Nenhum cargo selecionado para a comissão');
+        if (!comissaoData.profissionais || comissaoData.profissionais.length === 0) {
+            throw new Error('Nenhum profissional selecionado para a comissão');
         }
 
-        const comissaoPayload = {
-            idVenda: parseInt(idVenda),
-            idProfissional: comissaoData.idProfissional,
-            idsCargos: comissaoData.idsCargos
-        };
+        // Criar uma comissão para cada profissional
+        const promises = comissaoData.profissionais.map(async (profissionalComissao) => {
+            if (!profissionalComissao.idsCargos || profissionalComissao.idsCargos.length === 0) {
+                throw new Error(`Profissional ${profissionalComissao.idProfissional} não possui cargos válidos`);
+            }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/comissao/com-cargo`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(comissaoPayload)
+            const comissaoPayload = {
+                idVenda: parseInt(idVenda),
+                idProfissional: profissionalComissao.idProfissional,
+                idsCargos: profissionalComissao.idsCargos
+            };
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/comissao/com-cargo`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(comissaoPayload)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Erro ao criar comissão');
+            }
+
+            return await response.json();
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Erro ao criar comissão');
-        }
-
-        return await response.json();
+        return Promise.all(promises);
     };
 
     const atualizarComissao = async (idVenda: string) => {
         const token = getCookieValue('token');
         if (!token) throw new Error('Token não encontrado');
 
-        if (!comissaoData.idProfissional) return true;
-        if (!comissaoData.idsCargos || comissaoData.idsCargos.length === 0) return true;
+        if (!comissaoData.profissionais || comissaoData.profissionais.length === 0) return true;
 
-        // Deletar comissões existentes
+        // Deletar comissões manuais existentes
         await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/comissao/venda/${idVenda}`, {
             method: 'DELETE',
             headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        // Criar nova comissão
+        // Criar novas comissões
         return await criarComissao(idVenda);
     };
 
-    const handleComissaoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const { name, value } = e.target;
-        if (name === 'idProfissional') {
-            setComissaoData(prev => ({
-                ...prev,
-                idProfissional: parseInt(value) || 0
-            }));
-        }
-    };
+    const handleProfissionalAdd = useCallback((idProfissional: number) => {
+        const profissional = profissionaisFiltrados.find(p => p.id === idProfissional);
+        if (!profissional) return;
 
-    const resetComissaoData = () => {
+        const novoProfissional = {
+            idProfissional,
+            idsCargos: profissional.cargos?.map(cargo => cargo.id) || []
+        };
+
+        setComissaoData(prev => ({
+            ...prev,
+            profissionais: [...prev.profissionais, novoProfissional]
+        }));
+    }, [profissionaisFiltrados]);
+
+    const handleProfissionalRemove = useCallback((idProfissional: number) => {
+        setComissaoData(prev => ({
+            ...prev,
+            profissionais: prev.profissionais.filter(p => p.idProfissional !== idProfissional)
+        }));
+    }, []);
+
+    const resetComissaoData = useCallback(() => {
         setComissaoData({
-            idProfissional: 0,
-            idsCargos: []
+            profissionais: []
         });
-        setCargosDisponiveis([]);
-    };
+    }, []);
 
     // Carregar profissionais ao abrir o modal
     useEffect(() => {
@@ -221,47 +255,30 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
             
             setProfissionaisFiltrados(profissionaisDaImobiliaria);
             
-            // Reset profissional selecionado se não estiver na lista filtrada
-            const profissionalAtualValido = profissionaisDaImobiliaria.some(
-                p => p.id === comissaoData.idProfissional
-            );
-            
-            if (comissaoData.idProfissional && !profissionalAtualValido) {
-                setComissaoData(prev => ({ ...prev, idProfissional: 0, idsCargos: [] }));
-                setCargosDisponiveis([]);
-            }
+            // Reset profissionais selecionados se algum não estiver na lista filtrada
+            setComissaoData(prev => {
+                const profissionaisValidos = prev.profissionais.filter(
+                    profComissao => profissionaisDaImobiliaria.some(p => p.id === profComissao.idProfissional)
+                );
+                
+                if (profissionaisValidos.length !== prev.profissionais.length) {
+                    return { ...prev, profissionais: profissionaisValidos };
+                }
+                return prev;
+            });
         } else {
             setProfissionaisFiltrados([]);
-            // Reset profissional selecionado quando imobiliária não está selecionada
-            setComissaoData(prev => ({ ...prev, idProfissional: 0, idsCargos: [] }));
-            setCargosDisponiveis([]);
+            // Reset profissionais quando imobiliária não está selecionada
+            setComissaoData(prev => ({ ...prev, profissionais: [] }));
         }
-    }, [idImobiliaria, todosProfissionais, comissaoData.idProfissional]);
-
-    // Atualizar cargos quando profissional é selecionado
-    useEffect(() => {
-        if (comissaoData.idProfissional) {
-            const profissionalSelecionado = profissionaisFiltrados.find(p => p.id === comissaoData.idProfissional);
-            if (profissionalSelecionado && profissionalSelecionado.cargos && profissionalSelecionado.cargos.length > 0) {
-                setCargosDisponiveis(profissionalSelecionado.cargos);
-                const idsDosCargos = profissionalSelecionado.cargos.map(cargo => cargo.id);
-                setComissaoData(prev => ({ ...prev, idsCargos: idsDosCargos }));
-            } else {
-                setCargosDisponiveis([]);
-                setComissaoData(prev => ({ ...prev, idsCargos: [] }));
-            }
-        } else {
-            setCargosDisponiveis([]);
-            setComissaoData(prev => ({ ...prev, idsCargos: [] }));
-        }
-    }, [comissaoData.idProfissional, profissionaisFiltrados]);
+    }, [idImobiliaria, todosProfissionais]);
 
     return {
         comissaoData,
         profissionais: profissionaisFiltrados,
-        cargosDisponiveis,
         isLoadingProfissionais,
-        handleComissaoChange,
+        handleProfissionalAdd,
+        handleProfissionalRemove,
         resetComissaoData,
         criarComissao,
         atualizarComissao

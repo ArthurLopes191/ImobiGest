@@ -33,9 +33,9 @@ export default function VendaModal({
     const {
         comissaoData,
         profissionais,
-        cargosDisponiveis,
         isLoadingProfissionais,
-        handleComissaoChange,
+        handleProfissionalAdd,
+        handleProfissionalRemove,
         resetComissaoData,
         criarComissao,
         atualizarComissao
@@ -95,12 +95,8 @@ export default function VendaModal({
 
             // Validações para criação
             if (mode === 'create') {
-                if (!comissaoData.idProfissional) {
-                    setError('Selecione um profissional para a comissão');
-                    return;
-                }
-                if (!comissaoData.idsCargos || comissaoData.idsCargos.length === 0) {
-                    setError('O profissional selecionado não possui cargos válidos');
+                if (!comissaoData.profissionais || comissaoData.profissionais.length === 0) {
+                    setError('Selecione pelo menos um profissional para a comissão');
                     return;
                 }
             }
@@ -140,7 +136,7 @@ export default function VendaModal({
                     await criarParcelas(vendaResponse.id);
                 }
             } else if (mode === 'edit' && venda?.id) {
-                if (comissaoData.idProfissional) {
+                if (comissaoData.profissionais && comissaoData.profissionais.length > 0) {
                     await atualizarComissao(venda.id);
                 }
                 if (formData.formaPagamento === 'PARCELADO') {
@@ -150,12 +146,12 @@ export default function VendaModal({
 
             const successMessage = mode === 'create'
                 ? formData.formaPagamento === 'PARCELADO'
-                    ? 'Venda, comissão e parcelas criadas com sucesso!'
-                    : 'Venda e comissão criadas com sucesso!'
-                : formData.formaPagamento === 'PARCELADO' && comissaoData.idProfissional
-                    ? 'Venda, comissão e parcelas atualizadas com sucesso!'
-                    : comissaoData.idProfissional 
-                        ? 'Venda e comissão atualizadas com sucesso!'
+                    ? 'Venda, comissões e parcelas criadas com sucesso!'
+                    : 'Venda e comissões criadas com sucesso!'
+                : formData.formaPagamento === 'PARCELADO' && comissaoData.profissionais.length > 0
+                    ? 'Venda, comissões e parcelas atualizadas com sucesso!'
+                    : comissaoData.profissionais.length > 0 
+                        ? 'Venda e comissões atualizadas com sucesso!'
                         : formData.formaPagamento === 'PARCELADO'
                             ? 'Venda e parcelas atualizadas com sucesso!'
                             : 'Venda atualizada com sucesso!';
@@ -243,10 +239,10 @@ export default function VendaModal({
                             <ComissaoForm
                                 comissaoData={comissaoData}
                                 profissionais={profissionais}
-                                cargosDisponiveis={cargosDisponiveis}
                                 isLoadingProfissionais={isLoadingProfissionais}
                                 mode={mode}
-                                onComissaoChange={handleComissaoChange}
+                                onProfissionalAdd={handleProfissionalAdd}
+                                onProfissionalRemove={handleProfissionalRemove}
                                 idImobiliaria={formData.idImobiliaria}
                             />
 
