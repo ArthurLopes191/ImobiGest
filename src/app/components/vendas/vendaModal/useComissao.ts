@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ComissaoData, ProfissionalComissao, CargoComissao } from '@/types/venda';
+import { ComissaoData, ProfissionalComissao, CargoComissao, TipoComissao } from '@/types/venda';
 
 interface UseComissaoProps {
     showModal: boolean;
@@ -72,6 +72,9 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
             if (response.ok) {
                 comissoes = await response.json();
                 console.log('✅ Comissões encontradas via endpoint específico:', comissoes);
+                // Filtrar apenas comissões do tipo MANUAL
+                comissoes = comissoes.filter((comissao: any) => comissao.tipoComissao === 'MANUAL');
+                console.log('✅ Comissões filtradas (apenas MANUAL):', comissoes);
             } else {
                 console.log('⚠️ Endpoint específico falhou, tentando buscar todas e filtrar...');
                 
@@ -83,9 +86,10 @@ export function useComissao({ showModal, mode, vendaId, idImobiliaria }: UseComi
                 if (response.ok) {
                     const todasComissoes = await response.json();
                     comissoes = todasComissoes.filter((comissao: any) => 
-                        comissao.idVenda === parseInt(idVenda)
+                        comissao.idVenda === parseInt(idVenda) && 
+                        comissao.tipoComissao === 'MANUAL'
                     );
-                    console.log('✅ Comissões filtradas de todas:', comissoes);
+                    console.log('✅ Comissões filtradas de todas (apenas MANUAL):', comissoes);
                 } else {
                     console.error('❌ Ambos os métodos falharam');
                     return;

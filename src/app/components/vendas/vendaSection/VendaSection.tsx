@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import VendaModal from '@/app/components/vendas/vendaModal/VendaModal';
 import ParcelaInfo from './ParcelaInfo';
-import { Venda, VendaSectionProps, ImobiliariaVenda, VendaModalMode } from '@/types/venda';
+import { Venda, VendaSectionProps, ImobiliariaVenda, VendaModalMode, TipoComissao } from '@/types/venda';
 
 interface Imobiliaria {
     id: number;
@@ -174,7 +174,8 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
 
     const getVendedores = (venda: Venda): string => {
         const comissoesVenda = comissoes.filter(comissao => 
-            comissao.idVenda === parseInt(venda.id)
+            comissao.idVenda === parseInt(venda.id) && 
+            comissao.tipoComissao === 'MANUAL'
         );
 
         if (!comissoesVenda || comissoesVenda.length === 0) {

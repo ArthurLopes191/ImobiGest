@@ -1,6 +1,7 @@
 export interface Cargo {
   id: number;
   nome: string;
+  comissaoAutomatica: boolean;
 }
 
 export interface Imobiliaria {
