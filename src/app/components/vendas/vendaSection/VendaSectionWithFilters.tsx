@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import VendaModal from '@/app/components/vendas/vendaModal/VendaModal';
 import VendaFilters from '@/app/components/vendas/vendaFilters/VendaFilters';
 import ParcelaInfo from './ParcelaInfo';
 import { useVendaSearch, useVendaSearchData } from '@/app/components/vendas/hooks/useVendaSearch';
-import { Venda, VendaSectionProps, ImobiliariaVenda, VendaModalMode, TipoComissao } from '@/types/venda';
+import { Venda, VendaSectionProps, ImobiliariaVenda, VendaModalMode } from '@/types/venda';
 
 interface Imobiliaria {
     id: number;
@@ -20,7 +20,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
     const [refreshTrigger, setRefreshTrigger] = useState(0);
 
     // Dados auxiliares para filtros
-    const { imobiliarias, profissionais, isLoadingData } = useVendaSearchData();
+    const { imobiliarias, profissionais } = useVendaSearchData();
 
     // Estado de busca com filtros
     const {
@@ -39,8 +39,8 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
 
     // Estados para dados auxiliares (para o modal)
     const [imobiliariasModal, setImobiliariasModal] = useState<Imobiliaria[]>([]);
-    const [comissoes, setComissoes] = useState<any[]>([]);
-    const [profissionaisModal, setProfissionaisModal] = useState<any[]>([]);
+    const [comissoes, setComissoes] = useState<Array<{ id: number; nome: string; idVenda: number; tipoComissao: string; idProfissional: number }>>([]);
+    const [profissionaisModal, setProfissionaisModal] = useState<Array<{ id: number; nome: string }>>([]);
 
     const getCookieValue = (name: string): string | null => {
         const value = `; ${document.cookie}`;
@@ -50,7 +50,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
     };
 
     // Carregar dados auxiliares para o modal
-    const loadAuxiliaryData = async () => {
+    const loadAuxiliaryData = useCallback(async () => {
         try {
             const token = getCookieValue('token');
             if (!token) return;
@@ -85,11 +85,11 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
         } catch (err) {
             console.error('❌ Erro ao carregar dados auxiliares:', err);
         }
-    };
+    }, []);
 
     useEffect(() => {
         loadAuxiliaryData();
-    }, []);
+    }, [loadAuxiliaryData]);
 
     const handleVendaModalSuccess = () => {
         refresh(); // Refaz a busca atual com os mesmos filtros
@@ -107,14 +107,6 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
         setSelectedVenda(venda);
         setModalMode('edit');
         setShowVendaModal(true);
-    };
-
-    const handleVendaClick = (venda: Venda) => {
-        if (onVendaClick) {
-            onVendaClick(venda);
-        } else {
-            handleEditVenda(venda);
-        }
     };
 
     const getImobiliariasParaModal = (): ImobiliariaVenda[] => {

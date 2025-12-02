@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import VendaModal from '@/app/components/vendas/vendaModal/VendaModal';
 import ParcelaInfo from './ParcelaInfo';
-import { Venda, VendaSectionProps, ImobiliariaVenda, VendaModalMode, TipoComissao } from '@/types/venda';
+import { Venda, VendaSectionProps, ImobiliariaVenda, VendaModalMode } from '@/types/venda';
 
 interface Imobiliaria {
     id: number;
@@ -14,8 +14,8 @@ interface Imobiliaria {
 export default function VendaSection({ onVendaClick }: VendaSectionProps) {
     const [vendas, setVendas] = useState<Venda[]>([]);
     const [imobiliarias, setImobiliarias] = useState<Imobiliaria[]>([]);
-    const [comissoes, setComissoes] = useState<any[]>([]);
-    const [profissionais, setProfissionais] = useState<any[]>([]);
+    const [comissoes, setComissoes] = useState<Array<{ id: number; nome: string; idVenda: number; tipoComissao: string; idProfissional: number }>>([]);
+    const [profissionais, setProfissionais] = useState<Array<{ id: number; nome: string }>>([]);
     const [isLoadingVendas, setIsLoadingVendas] = useState(true);
     const [showVendaModal, setShowVendaModal] = useState(false);
     const [selectedVenda, setSelectedVenda] = useState<Venda | null>(null);
@@ -114,7 +114,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
         }
     };
 
-    const loadAllData = async () => {
+    const loadAllData = useCallback(async () => {
         setIsLoadingVendas(true);
 
         try {
@@ -127,11 +127,11 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
         } finally {
             setIsLoadingVendas(false);
         }
-    };
+    }, []);
 
     useEffect(() => {
         loadAllData();
-    }, []);
+    }, [loadAllData]);
 
     const handleVendaModalSuccess = () => {
         loadVendas();
@@ -280,7 +280,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                     ) : vendas.length === 0 ? (
                         <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
                             <p>Nenhuma venda cadastrada</p>
-                            <p className="text-sm mt-1">Clique em "Nova Venda" para criar a primeira</p>
+                            <p className="text-sm mt-1">Clique em &ldquo;Nova Venda&rdquo; para criar a primeira</p>
                         </div>
                     ) : (
                         <>

@@ -111,7 +111,7 @@ export const dashboardService = {
   async transformApiDataToDashboard(apiData: ApiDashboardResponse, imobiliariaId: string, dataInicio?: string, dataFim?: string): Promise<DashboardData> {
     // Buscar dados da imobiliária para ter nome completo
     const imobiliarias = await this.getImobiliarias();
-    const imobiliaria = imobiliarias.find((imob: any) => imob.id.toString() === imobiliariaId);
+    const imobiliaria = imobiliarias.find((imob: { id: number; nome: string }) => imob.id.toString() === imobiliariaId);
     
     const currentDate = new Date();
     
