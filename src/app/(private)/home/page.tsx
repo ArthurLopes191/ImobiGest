@@ -230,14 +230,39 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Comissões por Cargo - Dinâmicas */}
-          {dashboardData.comissoesPorCargo?.map((comissao, index) => {
-            const colors = ['text-purple-600', 'text-indigo-600', 'text-orange-600', 'text-pink-600', 'text-cyan-600'];
+          {/* Comissões Manuais por Cargo */}
+          {dashboardData.comissoesManuaisPorCargo?.map((comissao, index) => {
+            const colors = ['text-blue-600', 'text-green-600', 'text-yellow-600', 'text-red-600', 'text-purple-600'];
             const colorClass = colors[index % colors.length];
             
             return (
-              <div key={comissao.nomeCargo} className="bg-white rounded-lg shadow-md p-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">Comissão {comissao.nomeCargo}</h3>
+              <div key={`manual-${comissao.nomeCargo}`} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-500">
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-lg font-semibold text-gray-800">Comissão {comissao.nomeCargo}</h3>
+                  <span className="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    Manual
+                  </span>
+                </div>
+                <div className={`text-2xl font-bold ${getValueColor(comissao.valorComissao, colorClass)}`}>
+                  {formatValue(comissao.valorComissao)}
+                </div>
+              </div>
+            );
+          })}
+
+          {/* Comissões Automáticas por Cargo */}
+          {dashboardData.comissoesAutomaticasPorCargo?.map((comissao, index) => {
+            const colors = ['text-emerald-600', 'text-amber-600', 'text-rose-600', 'text-violet-600', 'text-slate-600'];
+            const colorClass = colors[index % colors.length];
+            
+            return (
+              <div key={`auto-${comissao.nomeCargo}`} className="bg-white rounded-lg shadow-md p-6 border-l-4 border-emerald-500">
+                <div className="flex items-center gap-2 mb-2">
+                  <h3 className="text-lg font-semibold text-gray-800">Comissão {comissao.nomeCargo}</h3>
+                  <span className="bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                    Automática
+                  </span>
+                </div>
                 <div className={`text-2xl font-bold ${getValueColor(comissao.valorComissao, colorClass)}`}>
                   {formatValue(comissao.valorComissao)}
                 </div>

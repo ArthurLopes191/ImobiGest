@@ -23,6 +23,8 @@ export interface DashboardData {
     periodoComissao: number;
   };
   comissoesPorCargo: ComissaoPorCargo[];
+  comissoesAutomaticasPorCargo: ComissaoPorCargo[];
+  comissoesManuaisPorCargo: ComissaoPorCargo[];
   periodo: {
     ano: number;
     mes: number;
@@ -39,6 +41,14 @@ interface ApiDashboardResponse {
   mediaMensalAnoComissao: number | null;
   mediaPeriodoComissao: number | null;
   comissoesPorCargo: {
+    nomeCargo: string;
+    valorComissao: number;
+  }[];
+  comissoesAutomaticasPorCargo: {
+    nomeCargo: string;
+    valorComissao: number;
+  }[];
+  comissoesManuaisPorCargo: {
     nomeCargo: string;
     valorComissao: number;
   }[];
@@ -132,6 +142,8 @@ export const dashboardService = {
         periodoComissao: apiData.mediaPeriodoComissao || 0
       },
       comissoesPorCargo: apiData.comissoesPorCargo || [],
+      comissoesAutomaticasPorCargo: apiData.comissoesAutomaticasPorCargo || [],
+      comissoesManuaisPorCargo: apiData.comissoesManuaisPorCargo || [],
       periodo: {
         ano: dataInicio ? new Date(dataInicio).getFullYear() : currentDate.getFullYear(),
         mes: dataInicio ? new Date(dataInicio).getMonth() + 1 : currentDate.getMonth() + 1,
@@ -164,6 +176,14 @@ export const dashboardService = {
         { nomeCargo: "Corretor", valorComissao: 55000.00 },
         { nomeCargo: "Gerente", valorComissao: 25000.00 },
         { nomeCargo: "Sócio", valorComissao: 25000.00 }
+      ],
+      comissoesAutomaticasPorCargo: [
+        { nomeCargo: "Agenciador", valorComissao: 15000.00 },
+        { nomeCargo: "Gerente", valorComissao: 8000.00 }
+      ],
+      comissoesManuaisPorCargo: [
+        { nomeCargo: "Corretor", valorComissao: 40000.00 },
+        { nomeCargo: "Vendedor", valorComissao: 12000.00 }
       ],
       periodo: {
         ano: currentDate.getFullYear(),

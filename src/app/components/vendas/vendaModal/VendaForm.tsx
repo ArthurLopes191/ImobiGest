@@ -137,6 +137,114 @@ export default function VendaForm({ formData, imobiliarias, onInputChange }: Ven
                     </div>
                 </div>
 
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="vendedorNome" className="block text-sm font-medium text-gray-700 mb-2">
+                            Nome do Vendedor
+                        </label>
+                        <input
+                            type="text"
+                            id="vendedorNome"
+                            name="vendedorNome"
+                            value={formData.vendedorNome}
+                            onChange={onInputChange}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="Nome do vendedor"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="vendedorContato" className="block text-sm font-medium text-gray-700 mb-2">
+                            Contato do Vendedor
+                        </label>
+                        <input
+                            type="text"
+                            id="vendedorContato"
+                            name="vendedorContato"
+                            value={formData.vendedorContato}
+                            onChange={onInputChange}
+                            required
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="(00) 00000-0000"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="comissaoComprador" className="block text-sm font-medium text-gray-700 mb-2">
+                            Comissão do Comprador (%)
+                        </label>
+                        <input
+                            type="number"
+                            id="comissaoComprador"
+                            name="comissaoComprador"
+                            value={formData.comissaoComprador === 0 ? '' : formData.comissaoComprador}
+                            onChange={onInputChange}
+                            required
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="3.00"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="comissaoVendedor" className="block text-sm font-medium text-gray-700 mb-2">
+                            Comissão do Vendedor (%)
+                        </label>
+                        <input
+                            type="number"
+                            id="comissaoVendedor"
+                            name="comissaoVendedor"
+                            value={formData.comissaoVendedor === 0 ? '' : formData.comissaoVendedor}
+                            onChange={onInputChange}
+                            required
+                            min="0"
+                            max="100"
+                            step="0.01"
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            placeholder="3.00"
+                        />
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label htmlFor="comissaoImobiliaria" className="block text-sm font-medium text-gray-700 mb-2">
+                            Comissão Total da Imobiliária (%)
+                        </label>
+                        <input
+                            type="number"
+                            id="comissaoImobiliaria"
+                            name="comissaoImobiliaria"
+                            value={formData.comissaoImobiliaria}
+                            readOnly
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 focus:outline-none"
+                            placeholder="Calculado automaticamente"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Soma das comissões do comprador e vendedor</p>
+                    </div>
+
+                    <div>
+                        <label htmlFor="valorComissaoImobiliaria" className="block text-sm font-medium text-gray-700 mb-2">
+                            Valor da Comissão (R$)
+                        </label>
+                        <input
+                            type="number"
+                            id="valorComissaoImobiliaria"
+                            name="valorComissaoImobiliaria"
+                            value={formData.valorComissaoImobiliaria.toFixed(2)}
+                            readOnly
+                            className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100 focus:outline-none"
+                            placeholder="Calculado automaticamente"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Calculado automaticamente com base na porcentagem e valor total</p>
+                    </div>
+                </div>
+
                 <div>
                     <label htmlFor="idImobiliaria" className="block text-sm font-medium text-gray-700 mb-2">
                         Imobiliária
