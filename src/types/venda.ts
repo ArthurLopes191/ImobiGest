@@ -7,6 +7,12 @@ export interface Venda {
   qtdParcelas: number;
   compradorNome: string;
   compradorContato: string;
+  vendedorNome: string;
+  vendedorContato: string;
+  comissaoComprador: number;
+  comissaoVendedor: number;
+  comissaoImobiliaria: number;
+  valorComissaoImobiliaria: number;
   idImobiliaria: number;
   imobiliaria?: {
     nome: string;
@@ -21,6 +27,12 @@ export interface VendaData {
   qtdParcelas: number;
   compradorNome: string;
   compradorContato: string;
+  vendedorNome: string;
+  vendedorContato: string;
+  comissaoComprador: number;
+  comissaoVendedor: number;
+  comissaoImobiliaria: number;
+  valorComissaoImobiliaria: number;
   idImobiliaria: number;
 }
 

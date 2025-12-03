@@ -173,6 +173,12 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
     };
 
     const getVendedores = (venda: Venda): string => {
+        // Se temos o campo vendedorNome, use-o
+        if (venda.vendedorNome) {
+            return venda.vendedorNome;
+        }
+        
+        // Fallback para o sistema antigo de comissões
         const comissoesVenda = comissoes.filter(comissao => 
             comissao.idVenda === parseInt(venda.id) && 
             comissao.tipoComissao === 'MANUAL'
@@ -289,11 +295,12 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                                 {/* Header da tabela */}
                                 <div className="bg-gray-50 rounded-t-lg border border-gray-200">
                                     <div className="grid grid-cols-12 gap-4 p-3 text-sm font-medium text-gray-700">
-                                        <div className="col-span-3">Imóvel</div>
+                                        <div className="col-span-2">Imóvel</div>
                                         <div className="col-span-2">Valor</div>
-                                        <div className="col-span-2">Data</div>
+                                        <div className="col-span-1">Data</div>
                                         <div className="col-span-2">Imobiliária</div>
-                                        <div className="col-span-2">Vendedores</div>
+                                        <div className="col-span-2">Vendedor</div>
+                                        <div className="col-span-2">Comissão</div>
                                         <div className="col-span-1">Parcelas</div>
                                     </div>
                                 </div>
@@ -307,7 +314,7 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                                             className={`grid grid-cols-12 gap-4 p-3 text-sm border-b border-gray-200 hover:bg-gray-50 transition-colors cursor-pointer ${index % 2 === 0 ? 'bg-white' : 'bg-gray-25'
                                                 }`}
                                         >
-                                            <div className="col-span-3">
+                                            <div className="col-span-2">
                                                 <p className="font-medium text-gray-800 truncate" title={venda.descricaoImovel}>
                                                     {venda.descricaoImovel}
                                                 </p>
@@ -322,8 +329,8 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                                                 </p>
                                             </div>
 
-                                            <div className="col-span-2">
-                                                <p className="text-gray-700">
+                                            <div className="col-span-1">
+                                                <p className="text-gray-700 text-xs">
                                                     {formatDate(venda.dataVenda)}
                                                 </p>
                                             </div>
@@ -337,6 +344,15 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                                             <div className="col-span-2">
                                                 <p className="text-gray-700 truncate" title={getVendedores(venda)}>
                                                     {getVendedores(venda)}
+                                                </p>
+                                            </div>
+
+                                            <div className="col-span-2">
+                                                <p className="text-gray-700 text-xs">
+                                                    {venda.comissaoImobiliaria ? `${venda.comissaoImobiliaria}%` : 'N/A'}
+                                                </p>
+                                                <p className="text-xs text-green-600 mt-1">
+                                                    {venda.valorComissaoImobiliaria ? formatCurrency(venda.valorComissaoImobiliaria) : 'N/A'}
                                                 </p>
                                             </div>
 
@@ -408,8 +424,18 @@ export default function VendaSection({ onVendaClick }: VendaSectionProps) {
                                                     <span className="font-medium">Comprador:</span> {venda.compradorNome}
                                                 </p>
                                                 <p className="text-sm text-gray-600">
-                                                    <span className="font-medium">Vendedor(es):</span> {getVendedores(venda)}
+                                                    <span className="font-medium">Vendedor:</span> {venda.vendedorNome || getVendedores(venda)}
                                                 </p>
+                                                {venda.comissaoImobiliaria && (
+                                                    <div className="flex justify-between items-center">
+                                                        <p className="text-sm text-gray-600">
+                                                            <span className="font-medium">Comissão:</span> {venda.comissaoImobiliaria}%
+                                                        </p>
+                                                        <p className="text-sm text-green-600 font-medium">
+                                                            {venda.valorComissaoImobiliaria ? formatCurrency(venda.valorComissaoImobiliaria) : 'N/A'}
+                                                        </p>
+                                                    </div>
+                                                )}
                                                 <div className="pt-1">
                                                     <span className="text-sm font-medium text-gray-600">Parcelas:</span>
                                                     <div className="mt-1">

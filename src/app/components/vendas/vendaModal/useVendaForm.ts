@@ -18,6 +18,12 @@ export function useVendaForm({ mode, venda, showModal }: UseVendaFormProps) {
         qtdParcelas: 0,
         compradorNome: '',
         compradorContato: '',
+        vendedorNome: '',
+        vendedorContato: '',
+        comissaoComprador: 0,
+        comissaoVendedor: 0,
+        comissaoImobiliaria: 0,
+        valorComissaoImobiliaria: 0,
         idImobiliaria: 0
     });
 
@@ -31,22 +37,35 @@ export function useVendaForm({ mode, venda, showModal }: UseVendaFormProps) {
                 qtdParcelas: value === 'A_VISTA' ? 0 : prev.qtdParcelas
             }));
         } else {
-            if (name === 'valorTotal') {
-                setFormData(prev => ({
-                    ...prev,
-                    [name]: value === '' ? 0 : parseFloat(value) || 0
-                }));
-            } else if (name === 'idImobiliaria' || name === 'qtdParcelas') {
-                setFormData(prev => ({
-                    ...prev,
-                    [name]: value === '' ? 0 : parseInt(value) || 0
-                }));
-            } else {
-                setFormData(prev => ({
-                    ...prev,
-                    [name]: value
-                }));
-            }
+            setFormData(prev => {
+                let newFormData = { ...prev };
+                
+                if (name === 'valorTotal') {
+                    newFormData.valorTotal = value === '' ? 0 : parseFloat(value) || 0;
+                } else if (name === 'idImobiliaria' || name === 'qtdParcelas') {
+                    (newFormData as any)[name] = value === '' ? 0 : parseInt(value) || 0;
+                } else if (name === 'comissaoComprador' || name === 'comissaoVendedor') {
+                    (newFormData as any)[name] = value === '' ? 0 : parseFloat(value) || 0;
+                } else {
+                    (newFormData as any)[name] = value;
+                }
+
+                // Calcular comissaoImobiliaria automaticamente
+                if (name === 'comissaoComprador' || name === 'comissaoVendedor') {
+                    const comissaoComprador = name === 'comissaoComprador' ? (value === '' ? 0 : parseFloat(value) || 0) : newFormData.comissaoComprador;
+                    const comissaoVendedor = name === 'comissaoVendedor' ? (value === '' ? 0 : parseFloat(value) || 0) : newFormData.comissaoVendedor;
+                    newFormData.comissaoImobiliaria = comissaoComprador + comissaoVendedor;
+                    newFormData.valorComissaoImobiliaria = (newFormData.comissaoImobiliaria / 100) * newFormData.valorTotal;
+                }
+
+                // Recalcular valorComissaoImobiliaria quando valorTotal muda
+                if (name === 'valorTotal') {
+                    const valorTotal = value === '' ? 0 : parseFloat(value) || 0;
+                    newFormData.valorComissaoImobiliaria = (newFormData.comissaoImobiliaria / 100) * valorTotal;
+                }
+
+                return newFormData;
+            });
         }
     };
 
@@ -62,6 +81,12 @@ export function useVendaForm({ mode, venda, showModal }: UseVendaFormProps) {
             qtdParcelas: 0,
             compradorNome: '',
             compradorContato: '',
+            vendedorNome: '',
+            vendedorContato: '',
+            comissaoComprador: 0,
+            comissaoVendedor: 0,
+            comissaoImobiliaria: 0,
+            valorComissaoImobiliaria: 0,
             idImobiliaria: 0
         });
     };
@@ -80,6 +105,12 @@ export function useVendaForm({ mode, venda, showModal }: UseVendaFormProps) {
                 qtdParcelas: venda.qtdParcelas,
                 compradorNome: venda.compradorNome,
                 compradorContato: venda.compradorContato,
+                vendedorNome: venda.vendedorNome || '',
+                vendedorContato: venda.vendedorContato || '',
+                comissaoComprador: venda.comissaoComprador || 0,
+                comissaoVendedor: venda.comissaoVendedor || 0,
+                comissaoImobiliaria: venda.comissaoImobiliaria || 0,
+                valorComissaoImobiliaria: venda.valorComissaoImobiliaria || 0,
                 idImobiliaria: venda.idImobiliaria
             });
         } else if (mode === 'create' && showModal) {
